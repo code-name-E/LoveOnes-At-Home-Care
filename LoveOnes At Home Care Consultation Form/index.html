@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Inquiry Form - LoveOnes At Home Care</title>
+    <!-- Include Google Fonts for elegant typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Include jQuery and EmailJS SDK -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- Include html2canvas for local screenshot generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script type="text/javascript">
+        // Initialize EmailJS (Replace with your actual public key)
+        (function() {
+            emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+        })();
+    </script>
+
+    <style>
+        :root {
+            --plum: #4A2E35;
+            --blush: #D8A4B1;
+            --blush-light: #F4E8EC;
+            --text-dark: #333333;
+            --alert-red: #D9534F;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FAF6F7;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 780px;
+            background-color: #ffffff;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 25px rgba(74, 46, 53, 0.15);
+            border-top: 6px solid var(--plum);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Fixed background layer pointing to the correct .png extension */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('Screenshot 2026-09-07 at 21.59.06_edit2.png');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            opacity: 0.25;
+            z-index: 0;
+        }
+
+        /* Ensure all form contents stay above the background layer */
+        .container > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: var(--plum);
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 34px;
+            font-weight: 600;
+        }
+
+        .slogan {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            text-align: center;
+            color: var(--blush);
+            margin-bottom: 30px;
+            font-size: 17px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--plum);
+        }
+
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--blush);
+            box-shadow: 0 0 5px rgba(216, 164, 177, 0.5);
+        }
+
+        .name-row {
+            display: flex;
+            gap: 10px;
+        }
+        .name-row .fn { flex: 2; }
+        .name-row .mi { flex: 1; }
+        .name-row .ln { flex: 2; }
+
+        .contact-row {
+            display: flex;
+            gap: 10px;
+        }
+        .contact-row div { flex: 1; }
+
+        .address-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Radar Scanning Animation styling */
+        #scanner-container {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .radar-scanner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--blush);
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            background: rgba(216, 164, 177, 0.1);
+        }
+        .radar-scanner::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 50%; height: 50%;
+            background: var(--plum);
+            transform-origin: 100% 100%;
+            animation: radar-spin 1.2s linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes radar-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Plum-themed map highlight preview box */
+        .map-preview {
+            display: none;
+            background: var(--blush-light);
+            border: 1px solid var(--blush);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--plum);
+        }
+
+        /* Plum-themed check message */
+        .check-msg {
+            color: var(--plum);
+            font-style: italic;
+            font-weight: 600;
+            margin-top: 6px;
+            display: none;
+        }
+
+        /* Locked / Hidden states */
+        .locked-overlay {
+            display: none;
+            background-color: var(--blush-light);
+            border: 2px dashed var(--plum);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: var(--plum);
+        }
+
+        .highlight-box {
+            background-color: var(--blush-light);
+            border-left: 4px solid var(--blush);
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 13px;
+            border-radius: 4px;
+            color: var(--plum);
+        }
+
+        .red-alert-box {
+            background-color: #F8D7DA;
+            color: #721C24;
+            border-left: 4px solid var(--alert-red);
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        #consultation-body {
+            display: none; /* Hidden until address verifies true */
+        }
+
+        button.submit-btn {
+            background-color: var(--plum);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        button.submit-btn:hover {
+            background-color: #352026;
+        }
+
+        .conditional-field {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(250, 242, 244, 0.95);
+            border-radius: 5px;
+        }
+
+        /* Day time slot row styling */
+        .time-slot-group {
+            display: none;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="form-container">
+    <h2>Consultation Inquiry Form</h2>
+    <div class="slogan">"where healthcare meets empathy"</div>
+
+    <!-- INITIAL ADDRESS VERIFICATION SECTION (Completely blank) -->
+    <div class="form-group" id="address-verification-section">
+        <label>Enter Your Home Address to Check Service Availability (Cumberland County, NC):</label>
+        <div class="address-row">
+            <input type="text" id="val_street" placeholder="Street Address">
+            <input type="text" id="val_city" placeholder="City">
+            <input type="text" id="val_state" placeholder="State (NC)" value="NC">
+            <input type="text" id="val_zip" placeholder="Zip Code">
+        </div>
+        <button type="button" id="check-radius-btn" style="margin-top: 10px; background:var(--blush); border:none; padding:8px 15px; border-radius:5px; color:var(--plum); font-weight:bold; cursor:pointer;">Verify Service Radius</button>
+        
+        <!-- GPS Scanning animation element -->
+        <div id="scanner-container">
+            <div class="radar-scanner"></div>
+            <p style="font-size: 12px; color: var(--plum); margin-top: 5px;">Scanning Cumberland County GPS radius...</p>
+        </div>
+
+        <div id="map-highlight-box" class="map-preview">
+            🗺️ <strong>Cumberland County Grid:</strong> Address matched inside regional service boundary.
+        </div>
+
+        <div id="radius-success-msg" class="check-msg">✓ <span id="display-address-text"></span> is within the radius that Lynne works.</div>
+        <div id="radius-fail-msg" style="display:none; color:var(--alert-red); margin-top:10px; font-weight:bold;">
+            Sorry, your address is outside our standard service area. Send an email to us to see what we can make work at <a href="mailto:loveonesathomecare@gmail.com">loveonesathomecare@gmail.com</a>
+        </div>
+    </div>
+
+    <!-- REST OF CONSULTATION FORM (Completely blank and unselected initially) -->
+    <form id="consultation-form">
+        <div id="consultation-body">
+            
+            <hr style="border:0; border-top:1px solid #ddd; margin: 20px 0;">
+
+            <!-- Personal Info Fields -->
+            <div class="form-group">
+                <div class="name-row">
+                    <div class="fn"><label>First Name</label><input type="text" name="first_name"></div>
+                    <div class="mi"><label>Middle Initial</label><input type="text" name="middle_initial" maxlength="1"></div>
+                    <div class="ln"><label>Last Name</label><input type="text" name="last_name"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="contact-row">
+                    <div><label>Date of Birth</label><input type="date" name="dob"></div>
+                    <div><label>Email Address</label><input type="email" name="email"></div>
+                    <div><label>Phone Number</label><input type="tel" name="phone" id="phone-input" placeholder="(910) 111-1111" maxlength="14"></div>
+                </div>
+            </div>
+
+            <!-- Q1 -->
+            <div class="form-group">
+                <label>1) Are you filling this out on behalf of yourself or someone else?</label>
+                <label><input type="radio" name="behalf" value="Self"> Self</label>
+                <label><input type="radio" name="behalf" value="Someone Else"> Someone else</label>
+                
+                <div id="someone-else-box" class="conditional-field">
+                    <label>Please include your name here and then fill out the remainder of the consultation for the person you are inquiring for:</label>
+                    <input type="text" name="inquirer_name" placeholder="Inquirer's Full Name">
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="form-group">
+                <label>2) Are you a private pay client or will you be using insurance?</label>
+                <label><input type="radio" name="payment_type" value="Private Pay"> Private Pay</label>
+                <label><input type="radio" name="payment_type" value="Insurance"> Insurance</label>
+                
+                <div id="insurance-lock-msg" class="locked-overlay">
+                    I apologize but we do not accept insurance pay at this time. Please feel free to email us so we can see what we can do.
+                </div>
+            </div>
+
+            <!-- Locked Container for Q3 onwards -->
+            <div id="main-form-content">
+
+                <!-- Q3 -->
+                <div class="form-group">
+                    <label>3) Do you smoke cigarettes, tobacco products, vape, and/or any type of smoking?</label>
+                    <label><input type="radio" name="smoking" value="Yes"> Yes</label>
+                    <label><input type="radio" name="smoking" value="No"> No</label>
+                    
+                    <div id="smoking-lock-msg" class="locked-overlay">
+                        I'm sorry but we do not work in homes where clients smoke. Second hand smoke is a real thing and Lynne prefers to be safe and not inhale smoke as she has her own medical issues that she has to be aware of as well.
+                    </div>
+                </div>
+
+                <div id="sub-locked-content">
+                    <!-- Q4 -->
+                    <div class="form-group">
+                        <label>4) Do you have a blood-borne disease that can be transferred through saliva, sores, and/or blood?</label>
+                        <label><input type="radio" name="blood_disease" value="Yes"> Yes</label>
+                        <label><input type="radio" name="blood_disease" value="No"> No</label>
+                        
+                        <div id="blood-lock-msg" class="locked-overlay">
+                            I'm sorry but we do not work in homes where clients have blood-borne diseases that can be spread through saliva, sores, and/or blood as it is a high risk.
+                        </div>
+                    </div>
+
+                    <div id="deep-locked-content">
+                        <!-- Q5 -->
+                        <div class="form-group">
+                            <label>5) How many people need care? (Numbers only)</label>
+                            <input type="text" id="num_people_care" name="num_people_care">
+                            
+                            <div id="relation-container" class="conditional-field">
+                                <label>What is the relation to the person who needs care?</label>
+                                <select name="relation" id="relation-select">
+                                    <option value="" disabled selected>Select relation...</option>
+                                    <option value="Self">Self</option>
+                                    <option value="Parent">Parent</option>
+                                    <option value="Child">Child</option>
+                                    <option value="Sibling">Sibling</option>
+                                    <option value="Friend">Friend</option>
+                                    <option value="None">None</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Q6 -->
+                        <div class="form-group">
+                            <label>6) How many people will be in the home when I am attending the client?</label>
+                            <input type="text" name="people_in_home">
+                        </div>
+
+                        <!-- Q7 (3-Column Grid) -->
+                        <div class="form-group">
+                            <label>7) What exact services do you need? (Check all that apply)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                <label><input type="checkbox" name="services" value="Bathing"> Bathing</label>
+                                <label><input type="checkbox" name="services" value="Clothing"> Clothing</label>
+                                <label><input type="checkbox" name="services" value="Cooking" id="chk-cooking"> Cooking</label>
+                                <label><input type="checkbox" name="services" value="Companionship"> Companionship</label>
+                                <label><input type="checkbox" name="services" value="Coordination"> Coordination</label>
+                                <label><input type="checkbox" name="services" value="Dressing"> Dressing</label>
+                                <label><input type="checkbox" name="services" value="Daily Activities"> Daily Activities</label>
+                                <label><input type="checkbox" name="services" value="Emotional Regulation"> Emotional Regulation</label>
+                                <label><input type="checkbox" name="services" value="Feeding"> Feeding</label>
+                                <label><input type="checkbox" name="services" value="Health Observation"> Health Observation</label>
+                                <label><input type="checkbox" name="services" value="Light Housekeeping"> Light Housekeeping</label>
+                                <label><input type="checkbox" name="services" value="Home Safety"> Home Safety</label>
+                                <label><input type="checkbox" name="services" value="Laundry"> Laundry</label>
+                                <label><input type="checkbox" name="services" value="Medication"> Medication</label>
+                                <label><input type="checkbox" name="services" value="Meal Preparation"> Meal Preparation</label>
+                                <label><input type="checkbox" name="services" value="Motorskills"> Motorskills</label>
+                                <label><input type="checkbox" name="services" value="Mobility"> Mobility</label>
+                                <label><input type="checkbox" name="services" value="Personal Care"> Personal Care</label>
+                                <label><input type="checkbox" name="services" value="Reminders"> Reminders</label>
+                                <label><input type="checkbox" name="services" value="Risk Management"> Risk Management</label>
+                                <label><input type="checkbox" name="services" value="Run errands"> Run errands</label>
+                                <label><input type="checkbox" name="services" value="Scheduling"> Scheduling</label>
+                                <label><input type="checkbox" name="services" value="Toileting"> Toileting</label>
+                                <label><input type="checkbox" name="services" value="Other"> Other</label>
+                            </div>
+                            <div id="cooking-allergy-box" class="conditional-field red-alert-box">
+                                <strong>PLEASE LIST ANY FOOD ALLERGIES:</strong>
+                                <textarea name="food_allergies" placeholder="Enter food allergies here..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Q8 -->
+                        <div class="form-group">
+                            <label>8) Will you need a hoyer lifter?</label>
+                            <label><input type="radio" name="hoyer" value="Yes"> Yes</label>
+                            <label><input type="radio" name="hoyer" value="No"> No</label>
+                            <div id="hoyer-msg" class="highlight-box" style="display:none;">
+                                Please be informed we have a weight max of 200lbs.
+                            </div>
+                        </div>
+
+                        <!-- Q9 -->
+                        <div class="form-group">
+                            <label>9) Are you looking for temporary or long term care?</label>
+                            <label><input type="radio" name="care_term" value="Temporary"> Temporary</label>
+                            <label><input type="radio" name="care_term" value="Long-term"> Long-term</label>
+                            
+                            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                                <div><label>Start Date:</label><input type="date" name="start_date"></div>
+                                <div><label>End Date:</label><input type="date" name="end_date"></div>
+                            </div>
+                        </div>
+
+                        <!-- Q10 -->
+                        <div class="form-group">
+                            <label>10) What days of the week do you need care?</label>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <label><input type="checkbox" name="days" value="Mon" class="day-chk" data-day="mon"> Mon</label>
+                                <label><input type="checkbox" name="days" value="Tue" class="day-chk" data-day="tue"> Tue</label>
+                                <label><input type="checkbox" name="days" value="Wed" class="day-chk" data-day="wed"> Wed</label>
+                                <label><input type="checkbox" name="days" value="Thur" class="day-chk" data-day="thur"> Thur</label>
+                                <label><input type="checkbox" name="days" value="Fri" class="day-chk" data-day="fri"> Fri</label>
+                                <label><input type="checkbox" name="days" value="Sat" class="day-chk weekend-chk" data-day="sat"> Sat</label>
+                                <label><input type="checkbox" name="days" value="Sun" class="day-chk weekend-chk" data-day="sun"> Sun</label>
+                            </div>
+                            <div id="weekend-msg" class="highlight-box" style="display:none;">
+                                Weekends are by request only, 48-72 hours in advance, and with an extra charge.
+                            </div>
+                        </div>
+
+                        <!-- Q11 (Connected dynamically to Q10) -->
+                        <div class="form-group">
+                            <label>11) What time during those days you selected? (Reminder: Lynne is available 9am-6pm Mon-Fri; weekends by request)</label>
+                            <div id="time-slots-container">
+                                <div class="time-slot-group" id="slot-mon">
+                                    <label style="font-weight:normal; font-size:13px;">Monday Time:</label>
+                                    <input type="text" name="time_mon" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-tue">
+                                    <label style="font-weight:normal; font-size:13px;">Tuesday Time:</label>
+                                    <input type="text" name="time_tue" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-wed">
+                                    <label style="font-weight:normal; font-size:13px;">Wednesday Time:</label>
+                                    <input type="text" name="time_wed" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-thur">
+                                    <label style="font-weight:normal; font-size:13px;">Thursday Time:</label>
+                                    <input type="text" name="time_thur" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-fri">
+                                    <label style="font-weight:normal; font-size:13px;">Friday Time:</label>
+                                    <input type="text" name="time_fri" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-sat">
+                                    <label style="font-weight:normal; font-size:13px;">Saturday Time:</label>
+                                    <input type="text" name="time_sat" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <div class="time-slot-group" id="slot-sun">
+                                    <label style="font-weight:normal; font-size:13px;">Sunday Time:</label>
+                                    <input type="text" name="time_sun" placeholder="e.g., 9AM-1PM">
+                                </div>
+                                <p id="no-days-selected-msg" style="font-style:italic; font-size:13px; color:#777;">Please select days in Question 10 to display corresponding time entry fields.</p>
+                            </div>
+                        </div>
+
+                        <!-- Q12 -->
+                        <div class="form-group">
+                            <label>12) Will you require needs on holidays?</label>
+                            <label><input type="radio" name="holidays" value="Yes"> Yes</label>
+                            <label><input type="radio" name="holidays" value="No"> No</label>
+                            <div id="holiday-msg" class="highlight-box" style="display:none;">
+                                I apologize but Lynne does not work on the Holidays as she likes to enjoy those days with her family.
+                            </div>
+                        </div>
+
+                        <!-- Q13 -->
+                        <div class="form-group">
+                            <label>13) Do you have any animals?</label>
+                            <label><input type="radio" name="animals" value="Yes"> Yes</label>
+                            <label><input type="radio" name="animals" value="No"> No</label>
+                            
+                            <div id="animal-box" class="conditional-field">
+                                <strong style="color:var(--plum);">Please enter the amount of animals you have, the type of animals, and the size (small, medium, or big).</strong>
+                                <textarea name="animal_details" placeholder="Enter details here..."></textarea>
+                                <br><br>
+                                <label style="font-weight: normal; font-size: 13px;">
+                                    <input type="checkbox" id="animal-ack" name="animal_ack"> 
+                                    I will inform my caregiver, Lynne, if my dog is vicious and if so I will keep my animals away in the next room or in a locked kennel.
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Q14 -->
+                        <div class="form-group">
+                            <label>14) Do you have cameras in your home?</label>
+                            <label><input type="radio" name="cameras" value="Yes"> Yes</label>
+                            <label><input type="radio" name="cameras" value="No"> No</label>
+                            
+                            <div id="camera-box" class="conditional-field highlight-box" style="display:none;">
+                                I, Lynne, do not give permission for any pictures, or video footage of me to be taken and/or used in any other way than to be checked by the client's family or guardian to see how I am with their client.
+                            </div>
+                        </div>
+
+                        <button type="button" class="submit-btn" id="submit-form-btn">Submit Consultation & Download Copy</button>
+
+                    </div><!-- /deep-locked-content -->
+                </div><!-- /sub-locked-content -->
+            </div><!-- /main-form-content -->
+
+        </div><!-- /consultation-body -->
+    </form>
+</div>
+
+<script>
+    // Cumberland County, NC Zip codes
+    const cumberlandZipCodes = [
+        "28301", "28302", "28303", "28304", "28305", "28306", "28307", "28308", 
+        "28309", "28310", "28311", "28312", "28314", "28318", "28331", "28342", 
+        "28344", "28348", "28356", "28390", "28391", "28395"
+    ];
+
+    // Phone number automatic masking into (910) 111-1111 format
+    $('#phone-input').on('input', function(e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+
+    // Address Verification Logic with GPS Scanner simulation
+    $('#check-radius-btn').on('click', function() {
+        let street = $('#val_street').val().trim();
+        let city = $('#val_city').val().trim();
+        let zip = $('#val_zip').val().trim();
+
+        if(!street || !city || !zip) {
+            alert("Please fill out Street, City, and Zip code to verify radius.");
+            return;
+        }
+
+        // Hide old messages, show radar scanner animation
+        $('#radius-success-msg').hide();
+        $('#radius-fail-msg').hide();
+        $('#map-highlight-box').hide();
+        $('#scanner-container').fadeIn();
+
+        // Simulate GPS regional scan delay (1.5 seconds)
+        setTimeout(function() {
+            $('#scanner-container').fadeOut();
+            
+            if(cumberlandZipCodes.includes(zip)) {
+                $('#map-highlight-box').fadeIn();
+                $('#display-address-text').text(street + ", " + city + ", NC " + zip);
+                $('#radius-success-msg').fadeIn();
+                $('#consultation-body').slideDown();
+            } else {
+                $('#radius-fail-msg').fadeIn();
+                $('#consultation-body').slideUp();
+            }
+        }, 1500);
+    });
+
+    // Q1: Behalf selection logic
+    $('input[name="behalf"]').on('change', function() {
+        if($(this).val() === 'Someone Else') {
+            $('#someone-else-box').slideDown();
+        } else {
+            $('#someone-else-box').slideUp();
+        }
+    });
+
+    // Q2: Insurance Lock Logic
+    $('input[name="payment_type"]').on('change', function() {
+        if($(this).val() === 'Insurance') {
+            $('#insurance-lock-msg').fadeIn();
+            $('#main-form-content').slideUp();
+        } else {
+            $('#insurance-lock-msg').fadeOut();
+            $('#main-form-content').slideDown();
+        }
+    });
+
+    // Q3: Smoking Lock Logic
+    $('input[name="smoking"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#smoking-lock-msg').fadeIn();
+            $('#sub-locked-content').slideUp();
+        } else {
+            $('#smoking-lock-msg').fadeOut();
+            $('#sub-locked-content').slideDown();
+        }
+    });
+
+    // Q4: Blood Borne Lock Logic
+    $('input[name="blood_disease"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#blood-lock-msg').fadeIn();
+            $('#deep-locked-content').slideUp();
+        } else {
+            $('#blood-lock-msg').fadeOut();
+            $('#deep-locked-content').slideDown();
+        }
+    });
+
+    // Numbers only validation for people count & relation dropdown toggle
+    $('#num_people_care').on('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if(this.value.length > 0) {
+            $('#relation-container').slideDown();
+        } else {
+            $('#relation-container').slideUp();
+        }
+    });
+
+    // Q7: Cooking allergy prompt
+    $('#chk-cooking').on('change', function() {
+        if($(this).is(':checked')) {
+            $('#cooking-allergy-box').slideDown();
+        } else {
+            $('#cooking-allergy-box').slideUp();
+        }
+    });
+
+    // Q8: Hoyer lifter message
+    $('input[name="hoyer"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#hoyer-msg').fadeIn();
+        } else {
+            $('#hoyer-msg').fadeOut();
+        }
+    });
+
+    // Q10 & Q11 Connected Logic (Dynamic Day Mapping)
+    $('.day-chk').on('change', function() {
+        let dayKey = $(this).attr('data-day');
+        if($(this).is(':checked')) {
+            $('#slot-' + dayKey).slideDown();
+        } else {
+            $('#slot-' + dayKey).slideUp();
+            $('#slot-' + dayKey + ' input').val(''); // clear input if unchecked
+        }
+
+        // Show/hide helper prompt if no days are currently selected
+        let anyDaysChecked = $('.day-chk:checked').length > 0;
+        if(anyDaysChecked) {
+            $('#no-days-selected-msg').hide();
+        } else {
+            $('#no-days-selected-msg').show();
+        }
+
+        // Weekend message check
+        let anyWeekendChecked = $('.weekend-chk:checked').length > 0;
+        if(anyWeekendChecked) {
+            $('#weekend-msg').fadeIn();
+        } else {
+            $('#weekend-msg').fadeOut();
+        }
+    });
+
+    // Q12: Holiday message prompt
+    $('input[name="holidays"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#holiday-msg').fadeIn();
+        } else {
+            $('#holiday-msg').fadeOut();
+        }
+    });
+
+    // Q13: Animals text box & checkbox rule
+    $('input[name="animals"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#animal-box').slideDown();
+        } else {
+            $('#animal-box').slideUp();
+        }
+    });
+
+    // Q14: Cameras notice
+    $('input[name="cameras"]').on('change', function() {
+        if($(this).val() === 'Yes') {
+            $('#camera-box').fadeIn();
+        } else {
+            $('#camera-box').fadeOut();
+        }
+    });
+
+    // Submit Action, EmailJS integration, and Local Device Screenshot
+    $('#submit-form-btn').on('click', function(e) {
+        e.preventDefault();
+
+        if($('input[name="animals"]:checked').val() === 'Yes' && !$('#animal-ack').is(':checked')) {
+            alert("You must check the agreement regarding vicious pets before submitting.");
+            $('#animal-ack').focus();
+            return;
+        }
+
+        alert("Submitting form, sending via EmailJS, and downloading local response copy...");
+
+        // Uncomment below to connect real EmailJS submission
+        // emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', '#consultation-form')
+        //     .then(function() { console.log('Email sent!'); }, function(error) { console.log('Failed', error); });
+
+        html2canvas(document.querySelector("#form-container")).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'LoveOnes-Consultation-Response.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    });
+</script>
+
+</body>
+</html>
